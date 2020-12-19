@@ -26,6 +26,7 @@ const routing = (
 				<Route exact path="/post/:slug" component={PostDetails} />
 				<Route exact path="/admin/create" component={Create} />
 				<Route exact path="/:slug/create" component={PostDetails} />
+				<Route exact path="/thumbs" component={PostDetails}/>
 			</Switch>
 			<Footer />
 		</React.StrictMode>

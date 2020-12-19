@@ -54,6 +54,7 @@ class Post(models.Model):
 
     def __str__(self):
         return self.title
+#if we want to create slug in server
 '''
 def create_slug(instance, new_slug=None):
     slug = slugify(instance.title)

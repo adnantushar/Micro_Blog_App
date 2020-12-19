@@ -3,6 +3,7 @@ from blog.models import Post, Comment
 from django.conf import settings
 from datetime import datetime
 
+THUMBS_OPTIONS = ["thumbsup", "thumbsdown"]
 
 class PostSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
@@ -66,3 +67,14 @@ class CommentCreateSerializer(serializers.ModelSerializer):
     def save(self, *args, **kwargs):
         Comment.objects.rebuild()
         return super().save(*args, **kwargs)
+
+class ThumbsSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    action = serializers.CharField()
+
+    def validate_action(self, value):
+        value = value.lower().strip()
+        if not value in THUMBS_OPTIONS:
+            raise serializers.ValidationError("This is not a valid action for tweets")
+        return value
+

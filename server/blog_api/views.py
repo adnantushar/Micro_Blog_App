@@ -3,7 +3,8 @@ from blog.models import Post,Comment,Vote
 from .serializers import (PostSerializer,
                           PostCreateSerializer,
                           PostDetailSerializer,
-                          CommentCreateSerializer)
+                          CommentCreateSerializer,
+                          ThumbsSerializer)
 from rest_framework.permissions import (SAFE_METHODS,
                                         IsAuthenticated, IsAuthenticatedOrReadOnly,
                                         BasePermission)
@@ -29,13 +30,13 @@ class PostUserWritePermission(BasePermission):
 
 
 class PostList(generics.ListCreateAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Post.postobjects.all()
     serializer_class = PostSerializer
 
 
 class PostDetail(generics.RetrieveAPIView):
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = PostDetailSerializer
     def get_object(self, queryset=None, **kwargs):
         item = self.kwargs.get('pk')
@@ -69,16 +70,17 @@ def CreateComment(request, slug):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET','POST'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def Thumbs(request):
+def Thumbs(request, *args, **kwargs):
 
-    if request.POST.get('action') == 'thumbs':
-
-        id = int(request.POST.get('postid'))
-        button = request.POST.get('button')
+    serializer = ThumbsSerializer(data=request.data)
+    if serializer.is_valid(raise_exception=True):
+        data = serializer.validated_data
+        id = data.get("id")
+        button = data.get("action")
         update = Post.objects.get(id=id)
-
+        print(id, button, update)
         if update.thumbs.filter(id=request.user.id).exists():
 
             # Get the users current vote (True/False)
@@ -181,5 +183,5 @@ def Thumbs(request):
 
             return Response({'up': up, 'down': down})
 
-    return Response({'hello':'tushar'})
+    return Response({'Error':'Not Valid'})
 
